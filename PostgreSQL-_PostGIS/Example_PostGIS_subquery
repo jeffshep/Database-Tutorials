@@ -1,0 +1,16 @@
+SELECT Sum(popn_total)
+FROM nyc_census_blocks census
+JOIN nyc_subway_stations subway
+ON ST_DWithin(census.geom, subway.geom, 500);
+
+WITH distinct_blocks AS (
+SELECT DISTINCT ON (blkid) popn_total
+FROM nyc_census_blocks census
+JOIN nyc_subway_stations subway
+ON ST_DWithin(census.geom, subway.geom, 500)
+)
+SELECT Sum (popn_total)
+FROM distinct_blocks;
+
+## The above query is broken up into a subquery to get distinct values
+## initially and then pass that into a summarization query.
