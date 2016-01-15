@@ -1,0 +1,22 @@
+DECLARE
+	v_suppno	supplier.supplier_nr%TYPE := &supplier_no;
+	v_suppname	supplier.name%TYPE := '7supplier_name';
+BEGIN
+	IF v_suppno	IS NULL
+		THEN SELECT MAX (supplier_nr) + 1
+			INTO v_suppno
+			FROM supplier;
+	END IF;
+	
+	IF v_suppname IS NULL
+		THEN v_suppname := 'Name to be supplied';
+	END IF;
+	
+	INSERT INTO supplier (supplier_nr, name)
+	VALUES
+	(v_suppno, v_suppname);
+EXCEPTION
+	WHEN DUP_VAL_ON_INDEX
+		THEN DBMS_OUTPUT.PUT_LINE('Supplier Nr'||v_suppno||'already exists');
+END;
+/
