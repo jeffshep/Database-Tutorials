@@ -1,0 +1,18 @@
+CREATE TABLE sal_audit(
+username VARCHAR2(10),
+update_date DATE,
+empno NUMBER (6),
+old_sal NUMBER (6,2),
+new_sal NUMBER (6,2)
+);
+
+CREATE OR REPLACE
+TRIGGER audit_sal
+AFTER UPDATE OF salary
+ON employee
+FOR EACH ROW
+BEGIN
+  INSERT INTO sal_audit VALUES(
+    USER, SYSDATE, :old.employee_nr, :old.salary, :new.salary);
+END audit_sal;
+/
