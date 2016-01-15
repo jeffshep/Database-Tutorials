@@ -1,0 +1,28 @@
+--An Index-By Table is used to store in memeory an array of individual elements for subsequent processing.
+-- Worked example: Load all rows from the employee table (except Chairman) into the Index-By Table
+--variable and then displays the value held in the surname field for each row in this variable.
+
+DECLARE
+  TYPE empstuff IS RECORD(
+  employee_nr employee.employee_nr%TYPE,
+  surname employee.surname%TYPE,
+  salary  employee.salary%TYPE);
+  
+  TYPE emptable IS TABLE OF empstuff INDEX BY BINARY_INTEGER;
+  
+  v_empinfo emptable;
+BEGIN
+  SELECT employee_nr, surname, salary
+  BULK COLLECT INTO v_empinfo
+  FROM employee
+  WHERE LOWER(job) <> 'chairman';
+  
+  DBMS_OUTPUT.PUT_LINE('Rows in table:' || v_empinfo.COUNT);
+  DBMS_OUTPUT.PUT_LINE('First Index:' || v_empinfo.FIRST);
+  DBMS_OUTPUT.PUT_LINE('Last Index:' || v_empinfo.LAST);
+  
+  FOR row_indx IN v_empinfo.FIRST .. v_empinfo.LAST LOOP
+    DBMS_OUTPUT.PUT_LINE ('Employee:' || v_empinfo(row_indx).surname);
+  END LOOP;
+END;
+/
