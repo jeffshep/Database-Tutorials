@@ -1,0 +1,18 @@
+--Checks that a new start date for an employee does not fall on the weekend and is not greater than the 
+--current system date. If either of these requirements is not met tehn the trigger is failed.
+
+CREATE OR REPLACE
+TRIGGER check_date
+BEFORE INSERT OR UPDATE OF start_date
+ON employee
+FOR EACH ROW
+BEGIN
+  IF :new.start_date > SYSDATE
+    THEN RAISE_APPLICATION_ERROR (-20567, 'Start date may not be in the future.');
+    
+  ELSIF TO_CHAR (:new.start_date, 'Dy') IN ('Sat', 'Sun')
+    THEN RAISE_APPLICATION_ERROR (-20568, 'Start date may not fall on a weekend.');
+    
+    END IF;
+END check_date;
+/
