@@ -1,0 +1,13 @@
+SELECT name, boroname, ST_IsValidReason(geom)
+FROM nyc_neighborhoods
+WHERE NOT ST_IsValid(geom);
+
+-- Side table of invalids
+CREATE TABLE nyc_neighborhoods_invalid AS
+SELECT * FROM nyc_neighborhoods
+WHERE NOT ST_IsValid(geom);
+
+-- Remove them from the main table
+DELETE FROM nyc_neighborhoods
+WHERE NOT ST_IsValid(geom);
+
