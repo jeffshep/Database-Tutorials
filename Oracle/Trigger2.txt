@@ -1,0 +1,26 @@
+-- INSTEAD OF trigger which allows single INSERT statement to affect two tables
+
+CREATE OR REPLACE VIEW prodsupp AS
+SELECT p.product_code, p_description, s.supplier_nr, s.name
+FROM product p, supplier s
+WHERE p.supplier_nr = s.supplier_nr;
+
+--The INSERT statement:
+INSERT INTO prodsupp
+VALUES
+('CDR48', '48x Speed CDROM', 1888, 'Northern Computers, Leeds');
+
+--THE INSTEAD OF trigger:
+CREATE OR REPLACE TRIGGER insert_rows
+INSTEAD OF INSERT
+ON prodsupp
+FOR EACH ROW
+BEGIN
+	INSERT INTO supplier (supplier_nr, name)
+	VALUES
+	(:new.supplier_nr, :new:name);
+	
+	INSERT INTO product (product_code, description, supplier_nr)
+	VALUES
+	(:new.product_code, :new.description, :new.supplier_nr);
+END insert_rows;
