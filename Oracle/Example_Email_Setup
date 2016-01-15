@@ -1,0 +1,30 @@
+--Write a program to set up email addresses for each existing employee.
+
+ALTER TABLE employee ADD email VARCHAR2(22);
+/
+DECLARE
+ CURSOR c_emps IS SELECT CASE WHEN initials IS NOT NULL THEN
+						SUBSTR(initials,1,1)||'.'
+						END || surname as full_name
+					FROM employee
+				FOR UPDATE OF email;
+v_email employee.email%TYPE;
+
+BEGIN
+
+FOR v_emp IN c_emps LOOP
+	<<inner>>
+	BEGIN
+	
+	v_email:=v_emp.full_name || '@stayahead.com';
+	
+	EXCEPTION
+	WHEN VALUE_ERROR THEN
+		v_email := v_emp.full_name || '@ast.com';
+	END inner;
+	
+	UPDATE employee
+		SET email = v_email
+	WHERE CURRENT OF c_emps;
+END LOOP;
+END;
