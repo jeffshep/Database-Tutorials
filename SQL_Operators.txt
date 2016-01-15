@@ -1,0 +1,238 @@
+Structured Query Language (SQL): Notes from w3tutorials.
+
+List of Terms;
+SELECT .... FROM ...
+UPDATE
+DELETE
+INSERT INTO
+CREATE DATABASE
+ALTER DATABASE
+CREATE TABLE
+ALTER TABLE
+DROP TABLE
+CREATE INDEX
+DROP INDEX
+
+
+List of Operators;
+SELECT col_name FROM table_name OR SELEct*FROM table (all data)
+SELECT DISTINCT col_name FROM table_name; (returns non duplicates)
+
+WHERE col_name = value;
+
+AND/OR/ORDER BY
+
+INSERT INTO table.name VALUES (1,2,3..)
+INSERT INTO table.name (col1,col2,col3..) VALUES (1,2,3...)
+
+UPDATE table.name SET col1 = value1 (new entry)
+UPDATE table.name WHERE col1 = value1 (new position)
+
+LIKE and Wildcards:
+	SELECT * FROM table.name Where col1 LIKE 't%'; (starts with a t)
+% sign indicates wildcards or missing letters
+Therefore %t (ending in t), %ant% (containing ant)
+[charlist] such as '[bsp]%' (starting with either b,s, or p)
+
+ALIASES - temporarily rename a table/column:
+	SELECT col_name AS alias_name FROM table_name; (for columns)
+	SELECT col_name FROM table_name AS aliasname; (for tables)
+This requires [...] if the column name contains spaces.
+
+ALIASES 2 - combining columns under a new name:
+	SELCT col.name1, col.name2+ ' : 'col.name3 AS col.name4;
+(will produce a 2 column table where the 1st column is col.name1 and the 2nd column is the combination of col.name2 and col.name3 but called col.name4)
+
+JOINS - combine rows from 2 tables based on a common field:
+INNER JOIN: returns all rows from multiple tables where the join condition is met.
+	SELECT table1.col_name1, table2.col_name2 (#specify table and columns)
+	FROM table1
+	INNER JOIN table2
+	ON table1.col_nameX = table2.co_nameX; (#specify table name and common condition, labelled col.nameX)
+LEFT JOIN - returns all the left table (table1) and the matching parts of the right table (table 2)
+	SELECT col_name
+	FROM table1
+	LEFT JOIN table 2
+	ON table1.col_name1 = table2. col_name2;
+FULL OUTER JOIN - combines all columns and rows of both tables.
+	SELECT col_name
+	FROM table1
+	FULL OUTER JOIN table2
+
+UNION - combines the result of 2 or more SELECT statements.
+	SELECT col_name FROM table1
+	UNION
+	SELECT col_name FROM table1
+	ORDER BY col_name X
+UNION ALL with WHERE:
+	SELECT col_name1, col_name2 FROM table1
+	WHERE col_name2 = 'X'
+	UNION ALL
+	SELECT col_name1, col_name2 FROM table2
+	WHERE col_name2 = 'X'
+	ORDER BY col_name1;
+
+SELECT INTO - copies data from one table and inserts it into a new table
+	SELECT * OR co_name1, col_name2
+ 	INTO newtable [IN externaldb]
+	FROM table1;
+	WHERE col_name1 = 'X'
+
+SELECT INTO - copy data from more than one table into the new table:
+	SELECT table1.col_name1, table2.col_name2
+	INTO new_table_name
+	FROM table1
+	LEFT JOIN table2
+	ON table1.col_nameX = table2.col_nameX;
+
+SELECT INTO - new, empty table using template of another, WHERE results in a no data return query.
+	SELECT *
+	INTO newtable
+	FROM table1
+	WHERE 1=0;
+
+INSERT INTO SELECT - copy data from one table and insert it into an existing table.
+	INSERT INTO table2
+	SELECT * FROM table1;	(# copy all columns from 1 table to another, existing table)
+
+	INSERT INTO table2 (col_name1, col_name2..)
+	SELECT col_name1, col_name2...	FROM table1 (# copy only desired columns)
+	
+	WHERE col_name1 = X (# addition of a WHERE operator to only copy certain data across)
+
+CREATE DATABASE - by definition
+	CREATE DATABASE dbname;
+
+CREATE TABLE - makes a table in a database
+	CREATE TABLE table_name
+	(
+	column_name1 data_type(size),
+	column_name2 data_type(size),
+	column_name3 data_type(size),
+	....
+	);				
+
+# data type - type of data the column will hold (int or varchar or decimal or date)
+# size - maximum length of the column 
+
+	CREATE TABLE Persons
+	(
+	PersonID int,
+	LastName varchar(255),
+	FirstName varchar(255),
+	Address varchar(255),
+	City varchar(255)
+	);
+
+# An empty table called "Persons" which can have data added to it with INSERT INTO operator.
+
+CONSTRAINTS: used to specify rules for the data in a table, can be specified when before or after a table is created.
+
+		CREATE TABLE table_name
+		(
+		column_name1 data_type(size) constraint_name,
+		column_name2 data_type(size) constraint_name,
+		column_name3 data_type(size) constraint_name,
+		....
+		);
+
+	Options for Constraint:
+	NOT NULL 	Indicates that a column cannot store NULL value
+	UNIQUE 		Ensures that each row for a column must have a unique value
+	PRIMARY KEY  	A combination of a NOT NULL and UNIQUE. Ensures that a column (s) have a unique identity which helps to find a particular record in a table more easily and quickly
+	FOREIGN KEY  	Ensure the referential integrity of the data in one table to match values in another table
+	CHECK 		Ensures that the value in a column meets a specific condition
+	DEFAULT 	Specifies a default value for a column
+	# more detail on each condition to follow
+
+	NOT NULL: enforces a column to NOT accept NULL values, this field must always have a value.
+
+	UNIQUE: uniquely identifies each record in a db table. #more explanation required.
+
+	PRIMARY KEY: must contain UNIQUE values and it cannot contain NULL values.
+	
+		CREATE TABLE Persons
+		(
+		P_Id int NOT NULL PRIMARY KEY,
+		LastName varchar(255) NOT NULL,
+		FirstName varchar(255),
+		Address varchar(255),
+		City varchar(255)
+		)
+
+	FOREIGN KEY: in one table points to a PRIMARY KEY in another table
+	It is used to prevent actions that would destroy links between tables.
+	Used to prevent invalid data from being inserted into the foreign key column,
+	because it has to be one of the values contained in the table it points too.
+	LOOK UP on w3schools for full syntax as required for specific database.
+
+	CHECK: 	is used to limit the value range that can be placed in a column.
+	definable on a single column, it allows only certain values for this column (e.g <0)
+	SQL SERVER/ORACLE/ACCESS Syntax (lookup MySQL):
+
+		CREATE TABLE Persons
+		(
+		P_Id int NOT NULL CHECK (P_Id>0),
+		LastName varchar(255) NOT NULL,
+		FirstName varchar(255),
+		Address varchar(255),
+		City varchar(255)
+		)
+	# puts a (>0) constraint on the P_Id column
+
+		ALTER TABLE Persons
+		ADD CONSTRAINT chk_Person CHECK (P_Id>0 AND City='Sandnes')
+	# editting a table to put a CHECK constrint on multiple columns
+	
+	DEFAULT: used to insert a default value into a column.
+	Can be used to insert system values using other functions, such as GETDATE().
+
+CREATE INDEX: used to create indexes in tables, which allows the db app to find data fast; without reading the whole table.
+# Only create indexes on columns that will be frequently searhed against.
+	
+	CREATE INDEX index_name
+	ON table_name (column_name) # creates an index on a table.
+
+DROP INDEX/TABLE/DATABASE: deletion # there are different syntax for differnt DBs
+	
+	General syntax: DROP DATABASE database_name
+
+TRUNCATE TABLE table_name # this will delete data inside a table, but not the table itself.
+
+
+ALTER TABLE: used to add, delete, modify columns in an existing table.
+
+	ALTER TABLE table_name
+	ADD column_name datatype	#adding a column 
+
+	ALTER TABLE table_name
+	DROP COLUMN column_name		#deleting a column
+
+	ALTER TABLE table_name
+	MODIFY column_name datatype	#changes the data type of a column in a table on ORacle 10g or later
+
+AUTO INCREMENT: allows a unique number to be generated when a new record is inserted into a table
+# Different syntax for most databases, so check out w3school when required.
+
+CREATE VIEW: a sample of the data that meets defined requirements.
+
+	CREATE VIEW view_name AS
+	SELECT column_name(s)
+	FROM table_name
+	WHERE condition
+	
+	SELECT * FROM [view_name] #query the created view
+
+DATE functions: ensure the format of the inserted date matches the format of the date column in the database
+The various date function are different for My SQL and SQL Server, as are the date types.
+
+Querying NULL values:
+	IS NULL and IS NOT NULL are queried using the WHERE operator:
+
+	SELECT LastName,FirstName,Address FROM Persons
+	WHERE Address IS NULL/Not NULL
+
+Calculating with NULL: different in different DBs, gernally setting NULL to zero is the best option.
+
+General Data Types: a data type defines what kind of value a column can contain.
+	#Check w3schools for a data type table.
