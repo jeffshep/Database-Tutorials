@@ -1,0 +1,36 @@
+--Most system exceptions have no pre-defined name and therefore can not be handled explicitly within the 
+--EXCEPTION section unless they are supplied with a name by the programmer, as such;
+
+--variable EXCEPTION;
+--PRAGMA EXCEPTION_INIT( variable, errorcode);
+-- the error can then be trapped in the EXCEPTION section of the block in the usual way;
+	--WHEN variable
+		--THEN statements;
+		
+-- Following example traps and handles an invalid foreign key value explicitly. The example then includes a
+--WHEN OTHERS exception handler which displays the actual message together with other text
+
+DECLARE
+  v_ordno orders.order_nr%TYPE := &ordno;
+  v_custno  orders.customer_nr%TYPE := &customer;
+  v_prodcode  orders.product_code%TYPE := UPPER('&product_code');
+  v_quantity  orders.quantity%TYPE := &quantity;
+  
+  e_noparent  EXCEPTION;
+  PRAGMA EXCEPTION_INIT(e_noparent, -02291);
+  
+BEGIN
+
+  INSERT INTO orders
+  VALUES
+  (v_ordno, v_prodcode, v_custno, SYSDATE, v_quantity);
+
+EXCEPTION
+  
+  WHEN e_noparent
+    THEN DBMS_OUTPUT.PUT_LINE('Parent Key' || v_prodcode || 'or' || v_custno || 'not found');
+  WHEN OTHERS
+    THEN DBMS_OUTPUT.PUT_LINE ('The following error has occurred: ');
+        DBMS_OUTPUT.PUT_LINE(SUBSTR(SQLERRM, 11));
+
+END;
