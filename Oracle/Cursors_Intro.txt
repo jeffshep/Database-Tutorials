@@ -1,0 +1,16 @@
+Cursor - implicit and explicit cursors.
+/
+DECLARED using: 
+	CURSOR cursorname IS
+	SELECT statement....
+/
+Necessary to use a column aliases if the result is to be read into the ROWTYPE variable:
+CURSOR c_emp IS
+SELECT surname, lower(job) AS job, salary * 12 AS annual_sal
+FROM employee
+WHERE department_nr = 10
+/
+Cursors help to store a query or multiple queries that can be operated on segments of data rather
+than the whole data set, saving time and memory;
+/
+
