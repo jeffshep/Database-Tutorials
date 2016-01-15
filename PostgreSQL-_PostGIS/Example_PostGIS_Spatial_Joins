@@ -1,0 +1,46 @@
+SELECT
+  lines.route,
+  100.0 * ROUND((Sum(popn_white) / Sum(popn_total))::numeric, 2) AS white_pct,
+  100.0 * ROUND((Sum(popn_black) / Sum(popn_total)) ::numeric, 2) AS black_pct,
+  Sum(popn_total) AS popn_total
+FROM nyc_census_blocks AS census
+JOIN nyc_subway_stations AS subways
+ON ST_DWithin(census.geom, subways.geom, 200)
+JOIN subway_lines AS lines
+ON strpos(subways.routes, lines.route) > 0
+GROUP BY lines.route
+ORDER BY black_pct DESC
+
+
+SELECT s.name, s.routes
+FROM nyc_subway_stations AS s
+JOIN nyc_neighborhoods AS n
+ON ST_Contains (n.geom, s.geom)
+WHERE n.name = 'Little Italy';
+
+
+SELECT DISTINCT n.name, n.boroname
+FROM nyc_neighborhoods AS n
+JOIN nyc_subway_stations AS s
+ON ST_Contains (n.geom, s.geom)
+WHERE strpos (s.routes, '6') >0
+
+
+SELECT Sum (popn_total)
+FROM nyc_neighborhoods AS n
+JOIN nyc_census_blocks AS c
+ON ST_Intersects (n.geom, c.geom)
+WHERE n.name = 'Battery Park';
+
+SELECT 
+n.name,
+Sum(c.popn_total) / (ST_Area(n.geom) / 1000000.0) AS popn_per_sqkm
+FROM nyc_census_blocks AS c
+JOIN nyc_neighborhoods AS n
+ON ST_Intersects (c.geom, n.geom)
+WHERE n.name = 'Upper West Side'
+OR n.name = 'Upper East Side'
+GROUP BY n.name, n.geom;
+
+
+
