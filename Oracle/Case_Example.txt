@@ -1,0 +1,15 @@
+DECLARE
+  v_grade salgrade.grade%TYPE := &grade;
+
+BEGIN
+  DBMS_OUTPUT.PUT ('Grade entered = ');
+  CASE v_grade
+    WHEN 1 THEN DBMS_OUTPUT.PUT_LINE ('Junior');
+    WHEN 2 THEN DBMS_OUTPUT.PUT_LINE ('Basic');
+    WHEN 3 THEN DBMS_OUTPUT.PUT_LINE ('Higher');
+    WHEN 4 THEN DBMS_OUTPUT.PUT_LINE ('Boss');
+    WHEN 5 THEN DBMS_OUTPUT.PUT_LINE('Big Fish');
+    ELSE DBMS_OUTPUT.PUT_LINE('No Such Grade');
+  END CASE;
+END;
+/
