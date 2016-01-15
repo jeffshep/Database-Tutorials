@@ -1,0 +1,28 @@
+--Records the number of transactions performed on the employee table by each user. Assuming user_audit exists.
+
+CREATE OR REPLACE
+TRIGGER audit_emp
+AFTER INSERT OR UPDATE OR DELETE
+ON employee
+FOR EACH ROW
+BEGIN	
+	IF INSERTING THEN
+		UPDATE user_audit
+			SET inserted = inserted + 1
+			WHERE user_name = USER
+				AND table_name = 'EMPLOYEE';
+	
+	ELSIF UPDATING THEN
+		UPDATE user_audit
+			SET updated = updated + 1
+				WHERE user_name = USER
+					AND table_name = 'EMPLOYEE';
+	ELSE UPDATE user_audit
+		SET deleted = deleted + 1
+			WHERE user_name = USER
+				AND table_name = 'EMPLOYEE';
+	END IF;
+
+END audit_emp;
+
+	
