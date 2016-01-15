@@ -1,0 +1,47 @@
+--Inserts a number of orders into the orders table for a given customer, product code and quantity
+--Number of orders to be inserted (default 1) and the time interval between them in days (default 7)
+--should be prompted for.
+
+
+DECLARE 
+  TYPE ordtype IS TABLE OF orders%ROWTYPE
+    INDEX BY BINARY_INTEGER;
+  v_orddata ordtype;
+  v_repeat NUMBER (2);
+  v_interval NUMBER (2);
+
+BEGIN
+  SELECT MAX (order_nr) + 1
+  INTO v_orddata(1).order_nr
+  FROM orders;
+  
+  v_orddata (1).order_date := SYSDATE;
+  
+  v_orddata(1).product_code := UPPER ('&product_code');
+  v_orddata (1).customer_nr := &customer_nr;
+  v_orddata (1).quantity := NVL(&quantity, 1);
+  
+  --ensure valid product code and customer number--
+  
+  v_repeat := NVL(&number_of_repeat_orders, 1);
+  v_interval := NVL(&repeat_interval, 7);
+  
+  FOR i IN 2..v_repeat LOOP
+    v_orddata(i).order_nr := v_orddata (i-1).order_nr + 1;
+    v_orddata (i).product_code := v_orddata (1).product_code;
+    v_orddata (i).customer_nr := v_orddata (1).customer_nr;
+    v_orddata (i).order_date := v_orddata (i-1).order_date + v_interval;
+    v_orddata (i).quantity := v_orddata (1).quantity;
+  END LOOP;
+  
+  FOR i IN 1..v_orddata.LAST LOOP
+  INSERT INTO orders VALUES v_orddata (i);
+  DBMS_OUTPUT.PUT_LINE(
+  v_orddata (i).order_nr ||''||
+  v_orddata (i).product_code||''||
+  v_orddata (i).customer_nr||''||
+  v_orddata (i).order_date||''||
+  v_orddata (i).quantity);
+  END LOOP;
+END;
+/
