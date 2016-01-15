@@ -1,0 +1,19 @@
+--DELETE a customer from the DB, except fo when they have orders.
+--Include an user-defined System Exception Handler to handle the resultant system exception
+--and prevent the progam aborting. 
+
+DECLARE
+	e_ordersexist EXCEPTION;
+	PRAGMA EXCEPTION_INIT(e_ordersexist, -02292);
+	
+	v_custno	customer.customer_nr%TYPE := &customer_nr;
+BEGIN
+	DELETE FROM customer
+	WHERE customer_nr = v_custno;
+EXCEPTION
+	WHEN e_ordersexist
+		THEN DBMS_OUTPUT.PUT_LINE ('Customer '|| v_custno || 'still has orders');
+	WHEN OTHERS
+		THEN DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
+/
