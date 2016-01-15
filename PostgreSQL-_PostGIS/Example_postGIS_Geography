@@ -1,0 +1,40 @@
+SELECT ST_Distance(
+  ST_GeometryFromText('POINT(-118.4079 33.9434)', 4326), -- Los Angeles (LAX)
+  ST_GeometryFromText('POINT(2.5559 49.0083)', 4326)     -- Paris (CDG)
+  );
+
+  SELECT ST_Distance(
+  ST_GeographyFromText('POINT(-118.4079 33.9434)'), -- Los Angeles (LAX)
+  ST_GeographyFromText('POINT(2.5559 49.0083)')     -- Paris (CDG)
+  );
+
+SELECT ST_Distance(
+  ST_GeographyFromText('LINESTRING(-118.4079 33.9434, 2.5559 49.0083)'), -- LAX-CDG
+  ST_GeographyFromText('POINT(-22.6056 63.9850)')                        -- Iceland (KEF)
+);
+CREATE TABLE nyc_subway_stations_geog AS
+SELECT
+  Geography(ST_Transform(geom,4326)) AS geog,
+  name,
+  routes
+FROM nyc_subway_stations;
+
+CREATE TABLE airports (
+  code VARCHAR(3),
+  geog GEOGRAPHY(Point)
+);
+
+INSERT INTO airports VALUES ('LAX', 'POINT(-118.4079 33.9434)');
+INSERT INTO airports VALUES ('CDG', 'POINT(2.5559 49.0083)');
+INSERT INTO airports VALUES ('KEF', 'POINT(-22.6056 63.9850)');
+
+SELECT * FROM geography_columns;
+
+SELECT 2::text;
+
+SELECT code, ST_X(geog::geometry) AS longitude FROM airports;
+
+CREATE TABLE liberty_island_zone AS 
+SELECT ST_Buffer (geom,500)::geometry(Polygon, 26918) AS geom
+FROM nyc_census_blocks
+WHERE blkid = '3606910001001001';
