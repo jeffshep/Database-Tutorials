@@ -1,0 +1,100 @@
+DROP TABLE IF EXISTS ticket;
+CREATE TABLE ticket
+(lot_num	int);
+
+DROP TABLE IF EXISTS Naming;
+CREATE TABLE Naming
+(id	int,
+machine	text);
+
+DROP TABLE IF EXISTS Machine;
+CREATE TABLE	Machine
+(numbers	int);
+
+DROP TABLE IF EXISTS results;
+CREATE TABLE	results
+(state		int);
+
+DROP TABLE IF EXISTS draw;
+CREATE TABLE draw
+(count		int);
+
+DELETE FROM Naming;
+INSERT INTO Naming (id, machine)
+VALUES
+(1, 'Arthur'),
+(2, 'Guinevere'),
+(3, 'Lancelot'),
+(4, 'Merlin'),
+(5, 'Galahad')
+;
+
+
+DO
+$do$
+DECLARE
+
+l_results	INTEGER :=1; --Number of loop iterations
+
+
+BEGIN
+
+			DELETE FROM ticket;
+			INSERT INTO ticket (lot_num)
+			(SELECT trunc(random() * 59 + 1) AS numbers		
+			FROM generate_series(1,9)			
+			GROUP BY 1					
+			LIMIT 6);
+
+
+LOOP
+				
+			DELETE FROM Machine;
+			INSERT INTO Machine (numbers)
+			(SELECT trunc(random() * 59 + 1) AS numbers		
+			FROM generate_series(1,9)			
+			GROUP BY 1					
+			LIMIT 6);
+			
+			DELETE FROM results;
+			INSERT INTO results (state)
+			(SELECT lot_num From ticket 
+			UNION ALL
+			SELECT numbers FROM Machine);
+
+			--DELETE FROM draw;
+			--INSERT INTO draw (count)
+			--(SELECT count(DISTINCT state) from results);
+
+
+			--select * from results
+
+			--select * from draw
+			IF (SELECT COUNT(*) FROM (SELECT DISTINCT state FROM results) AS temp) >= 8
+			THEN
+				l_results = l_results + 1;
+			ELSE EXIT;
+			END IF;
+
+
+									
+			--IF count(DISTINCT state) >= 7 FROM results THEN
+				--l_results = l_results + 1;
+			--ELSE EXIT;
+			--END IF;
+END LOOP;
+
+	RAISE NOTICE 'Draw was run % times', l_results;
+	RAISE NOTICE 'Winning Number 1 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 0;
+	RAISE NOTICE 'Winning Number 2 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 1;
+	RAISE NOTICE 'Winning Number 3 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 2;
+	RAISE NOTICE 'Winning Number 4 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 3;
+	RAISE NOTICE 'Winning Number 5 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 4;
+	RAISE NOTICE 'Winning Number 6 was %', ticket.lot_num FROM ticket LIMIT 1 OFFSET 5;
+	RAISE NOTICE 'Machine used %', Naming.machine FROM Naming ORDER BY random() limit 1;
+    
+END
+$do$ LANGUAGE plpgsql 
+;
+--select * from ticket
+
