@@ -1,0 +1,21 @@
+-- Add 1 week to the dates of all orders placed by specificied customers using a FOR LOOP.
+DECLARE
+v_custno  orders.customer_nr%TYPE;
+
+BEGIN
+  FOR v_ordno IN 1000..1023 LOOP
+    SELECT customer_nr
+    INTO v_custno
+    FROM orders
+    WHERE order_nr = v_ordno;
+    
+    IF v_custno IN (1036, 1223, 1443)
+      THEN UPDATE orders
+        SET order_date = order_date + 7
+        WHERE order_nr = v_ordno;
+    END IF;
+  END LOOP;
+  COMMIT;
+END;
+/
+SELECT * from orders;
