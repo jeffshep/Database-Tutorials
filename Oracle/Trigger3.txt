@@ -1,0 +1,28 @@
+--Checks the quantity value of a new or existing order to make sure that there is enough of the product item 
+--in stock to fulfil the order.
+
+CREATE OR REPLACE
+TRIGGER check_stock
+BEFORE INSERT OR UPDATE OF quantity
+ON orders
+FOR EACH ROW
+DECLARE
+	v_instock	product.instock%TYPE;
+	v_prodcode	product.product_code%TYPE;
+BEGIN
+	IF INSERTING
+		THEN v_prodcode := :new.product_code;
+		ELSE v_prodcode := :old.product_code;
+	END IF;
+	
+	SELECT instock
+	INTO v_instock
+	FROM product
+	WHERE product_code = v_prodcode
+	
+	IF :new.quantity > v_instock
+		THEN RAISE_APPLICATION_ERROR (-20010,
+		'Invalid order - only'||v_instock||'items in stock');
+	END IF;
+END check_stock;
+/
