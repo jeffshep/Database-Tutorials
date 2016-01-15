@@ -1,0 +1,31 @@
+--Nested block example
+--Increase by 10% the credit limit of all custumers who have placed at least one order worth £25000 or more.
+DECLARE
+	CURSOR c_cust IS
+	SELECT	customer_nr
+	FROM	customer
+	FOR UPDATE;
+
+BEGIN
+	FOR v_custrec IN c_cust LOOP
+		<<inner>>
+		DECLARE
+			CURSOR c_value IS
+			SELECT	quantity * sales_price AS value
+			FROM	orders o, product p
+			WHERE	o.product_code = p.product_code
+			AND o.customer_nr = v_custrec.customer_nr;
+		BEGIN
+			FOR v_valrec IN c_value LOOP
+				IF v_valrec.value >= 25000
+					THEN UPDATE customer
+						SET credit_limit = credit_limit*1.1
+						WHERE CURRENT OF c_cust;
+						EXIT;
+				END IF;
+			END LOOP;
+		END inner;
+	END LOOP;
+	COMMIT;
+END outer;
+
