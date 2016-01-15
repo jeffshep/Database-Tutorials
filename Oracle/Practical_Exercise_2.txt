@@ -1,0 +1,41 @@
+--Practical Exercises 4.1
+--Add an exception section to capture possible errors resulting from the SELECT statement.
+--Raise a user-defined exception should the percentage increase exceed 10%. Include a WHEN OTHERS exception handler as well.
+--Generate appropraite messages to screen using output block.
+
+DECLARE
+	v_custno	customer.customer_nr%TYPE := &customer_nr;
+	v_increase NUMBER := (100 + &percent_increase)/100;
+	v_custname VARCHAR2 (26);
+	v_creditlimit	customer.credit_limit%TYPE;
+	e_badpercent	EXCEPTION;
+BEGIN
+	IF v_increase > 1.1
+		THEN RAISE e_badpercent;
+	END IF;
+	
+	SELECT RTRIM(initials) || surname, credit_limit
+	INTO v_custname, v_creditlimit
+	FROM customer
+	WHERE customer_nr = v_custno;
+	
+	DBMS_OUTPUT.PUT_LINE ('Customer' || v_custno || ' ' || v_custname);
+	DBMS_OUTPUT.PUT_LINE('OLD Credit Limit = '|| v_creditlimit);
+	
+	v_creditlimit := v_creditlimit * v_increase;
+	
+	UPDATE customer
+	SET credit_limit = v_creditlimit
+	WHERE customer_nr = v_custno;
+	
+	DBMS_OUTPUT.PUT_LINE ('New Credit Limit =' || v_creditlimit);
+EXCEPTION
+	WHEN e_badpercent
+		THEN DBMS_OUTPUT.PUT_LINE('Percent increase exceeds 10%');
+	WHEN NO_DATA_FOUND
+		THEN DBMS_OUTPUT.PUT_LINE('Customer'||v_custno||'invalid');
+	WHEN TOO_MANY_ROWS
+		THEN DBMS_OUTPUT.PUT_LINE('More than one cust.'|| v_custno);
+	WHEN OTHERS
+		THEN DBMS_OUTPUT.PUT_LINE(SQLERRM);
+END;
