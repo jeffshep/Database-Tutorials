@@ -1,0 +1,28 @@
+--recent orders qualifying for BOGOF deal. Essentially doubling to order quantity column where the order date is recent
+
+DECLARE
+  v_order   orders.order_nr%TYPE;
+  v_quantity    orders.quantity%TYPE;
+  v_year    CHAR(4);
+  v_counter   orders.order_nr%TYPE := 1000;
+
+BEGIN
+
+WHILE v_counter <= 1020 LOOP
+  SELECT order_nr, quantity, TO_CHAR(order_date, 'yyyy')
+  INTO v_order, v_quantity, v_year
+  FROM orders
+  WHERE order_nr = v_counter;
+  v_counter := v_counter + 1;
+  DBMS_OUTPUT.PUT_LINE ('order number' || v_order);
+  CONTINUE WHEN v_year <= 2006;
+  DBMS_OUTPUT.PUT_LINE('bonus awarded');
+  v_quantity := v_quantity*2;
+  UPDATE orders
+  SET quantity = v_quantity
+  WHERE order_nr = v_order;
+END LOOP;
+
+END;
+/
+select * from orders;
