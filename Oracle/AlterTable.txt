@@ -1,0 +1,46 @@
+--A program to output employee number, job, current salary and projected new salary of all employees whose current salaries fall below a given amount
+--First capture the above data of all affected employees in an Index-By Table 
+--Then remove the Chairman and any managers
+--Output the dta in each of the remining rows of the table
+
+DECLARE
+  v_limit employee.salary%TYPE := &salary_threshold;
+  v_increase NUMBER := (100 + &percent_increase)/100;
+  
+  TYPE emprec IS RECORD (
+  empno employee.employee_nr%TYPE,
+  job employee.job%TYPE,
+  oldsal employee.salary%TYPE,
+  newsal  employee.salary%TYPE);
+  
+  TYPE emprec_t IS TABLE OF emprec INDEX BY BINARY_INTEGER;
+  
+  v_empdata emprec_t;
+  v_index NUMBER;
+BEGIN
+  SELECT employee_nr AS empno, job,
+  salary AS oldsal, salary * v_increase AS newsal
+  BULK COLLECT INTO v_empdata
+  FROM employee
+  WHERE salary < v_limit
+  ORDER BY empno;
+  
+  FOR i IN 1..v_empdata.LAST LOOP
+    IF v_empdata (i).job IN ('Chairman', 'Manager')
+      THEN v_empdata.DELETE(i);
+    END IF;
+  END LOOP;
+  
+  v_index:= v_empdata.FIRST;
+  
+  WHILE v_index <= v_empdata.LAST LOOP
+    DBMS_OUTPUT.PUT_LINE(
+    v_empdata (v_index).empno ||''||
+    v_empdata (v_index).job ||''||
+    v_empdata(v_index).oldsal ||''||
+    v_empdata (v_index).newsal);
+    
+    v_index := v_empdata.NEXT(v_index);
+  END LOOP;
+END;
+/
