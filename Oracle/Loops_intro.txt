@@ -1,0 +1,27 @@
+-- update certains rows and loops through the range making changes
+
+DECLARE
+  v_prospectno NUMBER (6) := 10;
+BEGIN
+  LOOP
+    UPDATE prospect
+    SET credit_rating = 12
+    WHERE prospect_nr = v_prospectno;
+    
+    v_prospectno := v_prospectno + 1;
+    
+    EXIT WHEN v_prospectno > 20;
+  END LOOP;
+END;
+/
+SELECT * FROM prospect;
+/
+--same as above above using a FOR LOOP
+BEGIN
+  FOR v_prospectno IN 10..20 LOOP
+    UPDATE prospect
+    SET credit_rating = 12
+    WHERE prospect_nr = v_prospectno;
+  END LOOP;
+END;
+/
