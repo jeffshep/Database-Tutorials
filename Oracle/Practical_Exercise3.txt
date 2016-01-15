@@ -1,0 +1,34 @@
+--add a discount column to customers table
+ALTER TABLE customer
+ADD DISCOUNT NUMBER;
+/
+SELECT * from customer;
+/
+--apply a discount to a selected customer
+DECLARE
+v_custno  orders.customer_nr%TYPE := &cust_nr;
+v_discount  NUMBER;
+v_totsales  NUMBER;
+v_discpercent NUMBER := &discount_percent;
+
+BEGIN
+  SELECT SUM(o.quantity * p.sales_price)
+  INTO v_totsales
+  FROM orders o, product p
+  WHERE o.product_code = p.product_code
+    AND o.customer_nr = v_custno;
+  
+  IF v_totsales >= 25000
+    THEN v_discount := v_totsales * (v_discpercent/100);
+      UPDATE customer
+      SET discount = v_discount
+      WHERE customer_nr = v_custno;
+      
+      DBMS_OUTPUT.PUT_LINE('Customer:'||v_custno || 'Discount:' || v_discount);
+    ELSE
+      DBMS_OUTPUT.PUT_LINE('Customer:' || v_custno || 'Not eligible for discount');
+      
+  END IF;
+END;
+/
+SELECT  customer_nr,discount from customer;
